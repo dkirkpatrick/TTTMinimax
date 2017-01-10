@@ -38,7 +38,7 @@ int minusOneAbs(int i) {
 	}
 }
 
-int minimax(TTTGame game, int player, int x, int y, int depth) {
+int minimax(TTTGame game, int player, int x, int y, int depth, std::vector<int>& whichPermutations) {
 	game.play(x, y, getOtherPlayer(player));
 	if (player == 1 && p1MinimaxVal.count(game.base3Board()) > 0) {
 		return p1MinimaxVal.at(game.base3Board());
@@ -59,7 +59,7 @@ int minimax(TTTGame game, int player, int x, int y, int depth) {
 	map<vector<int>, int> values;
 	for (auto p : myPlays) {
 		TTTGame newGame(game); 
-		int score = minimax(newGame, getOtherPlayer(player), p.at(0), p.at(1), depth + 1);
+		int score = minimax(newGame, getOtherPlayer(player), p.at(0), p.at(1), depth + 1, whichPermutations);
 		values.emplace(p, minusOneAbs(score));
 	}
 	TTTGame tempGame(game);
@@ -68,7 +68,12 @@ int minimax(TTTGame game, int player, int x, int y, int depth) {
 	int value = b->second;
 
 	if (boardMinimumTransformations.count(game.base3Board()) <= 0) {
-		auto p = game.getMinimumBoardAndPermutation(); 
+		if (whichPermutations.size() == 0) {
+			auto p = game.getMinimumBoardAndPermutation();
+		}
+		else {
+			auto p = game.getMinimumBoardAndPermutationUsingSubset(whichPermutations);
+		}
 		boardMinimumTransformations.emplace(game.base3Board(), p);
 		if (boardOverview.count(p.first) <= 0) {
 			boardOverview.emplace(p.first, outercount);
